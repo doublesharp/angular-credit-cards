@@ -5,7 +5,7 @@ var bind = require('function-bind')
 
 module.exports = factory
 
-factory.$inject = ['$parse']
+factory.$inject = []
 function factory () {
   return {
     restrict: 'A',
