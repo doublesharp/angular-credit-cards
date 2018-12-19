@@ -642,7 +642,7 @@ var bind = _dereq_('function-bind')
 module.exports = factory
 
 factory.$inject = ['$parse']
-function factory ($parse) {
+function factory () {
   return {
     restrict: 'A',
     require: 'ngModel',
@@ -652,13 +652,17 @@ function factory ($parse) {
       attributes.$set('xAutocompletetype', 'cc-csc')
 
       return function (scope, element, attributes, ngModel) {
+        scope.cc_type = false
         ngModel.$validators.ccCvc = function (value) {
-          return ngModel.$isEmpty(ngModel.$viewValue) || cvc.isValid(value, $parse(attributes.ccType)(scope))
+          return ngModel.$isEmpty(ngModel.$viewValue) || cvc.isValid(value, scope.cc_type)
         }
 
-        if (attributes.ccType) {
-          scope.$watch(attributes.ccType, bind.call(ngModel.$validate, ngModel))
-        }
+        scope.$watch(attributes.ccType, function (ccType) {
+          scope.cc_type = ccType
+          ccType = ccType ? ccType.replace(/\s/, '').toLowerCase() : false
+          attributes.$set('maxlength', !ccType || ccType === 'americanexpress' ? 4 : 3)
+          bind.call(ngModel.$validate, ngModel)()
+        })
       }
     }
   }
