@@ -33,33 +33,33 @@ describe('cc-cvc', function () {
   it('accepts a 3 digit numeric', function () {
     controller.$setViewValue('123')
     scope.$digest()
-    expect(controller.$valid).to.be.true
+    expect(controller.$valid).to.be.true()
     expect(scope.card.cvc).to.equal('123')
   })
 
   it('accepts a 4 digit numeric', function () {
     controller.$setViewValue('1234')
     scope.$digest()
-    expect(controller.$valid).to.be.true
+    expect(controller.$valid).to.be.true()
     expect(scope.card.cvc).to.equal('1234')
   })
 
   it('does not accept numbers', function () {
     controller.$setViewValue(123)
     scope.$digest()
-    expect(controller.$valid).to.be.false
+    expect(controller.$valid).to.be.false()
   })
 
   it('accepts an empty cvc', function () {
     controller.$setViewValue('')
     scope.$digest()
-    expect(controller.$valid).to.be.true
+    expect(controller.$valid).to.be.true()
   })
 
   it('unsets the model value when invalid', function () {
     controller.$setViewValue('abc')
     scope.$digest()
-    expect(scope.card.cvc).to.be.undefined
+    expect(scope.card.cvc).to.be.undefined()
   })
 
   describe('ccType', function () {
@@ -72,10 +72,10 @@ describe('cc-cvc', function () {
       scope.cardType = 'visa'
       scope.card.cvc = '1234'
       scope.$digest()
-      expect(controller.$valid).to.be.false
+      expect(controller.$valid).to.be.false()
       scope.cardType = 'americanExpress'
       scope.$digest()
-      expect(controller.$valid).to.be.true
+      expect(controller.$valid).to.be.true()
     })
   })
 })

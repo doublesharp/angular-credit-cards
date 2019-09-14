@@ -49,6 +49,31 @@ exports.curryRight = function curryRight (fn) {
 }
 
 },{}],2:[function(_dereq_,module,exports){
+'use strict';
+
+function find(array, predicate, context) {
+  if (typeof Array.prototype.find === 'function') {
+    return array.find(predicate, context);
+  }
+
+  context = context || this;
+  var length = array.length;
+  var i;
+
+  if (typeof predicate !== 'function') {
+    throw new TypeError(predicate + ' is not a function');
+  }
+
+  for (i = 0; i < length; i++) {
+    if (predicate.call(context, array[i], i, array)) {
+      return array[i];
+    }
+  }
+}
+
+module.exports = find;
+
+},{}],3:[function(_dereq_,module,exports){
 'use strict'
 
 var isArray = _dereq_('isarray')
@@ -57,31 +82,24 @@ module.exports = function castArray (value) {
   return isArray(value) ? value : [value]
 }
 
-},{"isarray":18}],3:[function(_dereq_,module,exports){
+},{"isarray":32}],4:[function(_dereq_,module,exports){
 'use strict'
 
-var types = exports.types = _dereq_('./src/types')
-exports.Type = _dereq_('./src/type')
+module.exports = _dereq_('./types')
 
-exports.find = function findCardType (callback) {
-  for (var typeName in types) {
-    var type = types[typeName]
-    var result = callback(type)
-    if (result) return type
-  }
-}
-
-},{"./src/type":4,"./src/types":5}],4:[function(_dereq_,module,exports){
+},{"./types":12}],5:[function(_dereq_,module,exports){
 'use strict'
 
-var extend = _dereq_('xtend/mutable')
+var assign = _dereq_('xtend/mutable')
 
 module.exports = CardType
 
-function CardType (name, config) {
-  extend(this, {name: name}, config)
+function CardType (data) {
+  if (!(this instanceof CardType)) return new CardType(data)
+  assign(this, data)
 }
 
+CardType.prototype.digits = 16
 CardType.prototype.cvcLength = 3
 CardType.prototype.luhn = true
 CardType.prototype.groupPattern = /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?/
@@ -96,140 +114,265 @@ CardType.prototype.test = function (number, eager) {
   return this[eager ? 'eagerPattern' : 'pattern'].test(number)
 }
 
-},{"xtend/mutable":26}],5:[function(_dereq_,module,exports){
+},{"xtend/mutable":36}],6:[function(_dereq_,module,exports){
 'use strict'
 
-var Type = _dereq_('./type')
+var Type = _dereq_('../type')
 
-var group19 = /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?(\d{1,3})?/
-
-exports.visa = new Type('Visa', {
-  pattern: /^4\d{12}(\d{3}|\d{6})?$/,
-  eagerPattern: /^4/,
-  groupPattern: group19
-})
-
-exports.maestro = new Type('Maestro', {
-  pattern: /^(?:5[06789]\d\d|(?!6011[0234])(?!60117[4789])(?!60118[6789])(?!60119)(?!64[456789])(?!65)6\d{3})\d{8,15}$/,
-  eagerPattern: /^(5(018|0[23]|[68])|6[37]|60111|60115|60117([56]|7[56])|60118[0-5]|64[0-3]|66)/,
-  groupPattern: group19
-})
-
-exports.forbrugsforeningen = new Type('Forbrugsforeningen', {
-  pattern: /^600722\d{10}$/,
-  eagerPattern: /^600/
-})
-
-exports.dankort = new Type('Dankort', {
-  pattern: /^5019\d{12}$/,
-  eagerPattern: /^5019/
-})
-
-exports.masterCard = new Type('MasterCard', {
-  pattern: /^(5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)\d{12}$/,
-  eagerPattern: /^(2|5[1-5])/
-})
-
-exports.americanExpress = new Type('American Express', {
+module.exports = Type({
+  name: 'American Express',
+  digits: 15,
   pattern: /^3[47]\d{13}$/,
   eagerPattern: /^3[47]/,
   groupPattern: /(\d{1,4})(\d{1,6})?(\d{1,5})?/,
   cvcLength: 4
 })
 
-exports.dinersClub = new Type('Diners Club', {
+},{"../type":5}],7:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Dankort',
+  pattern: /^5019\d{12}$/,
+  eagerPattern: /^5019/
+})
+
+},{"../type":5}],8:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Diners Club',
+  digits: 14,
   pattern: /^3(0[0-5]|[68]\d)\d{11}$/,
   eagerPattern: /^3(0|[68])/,
   groupPattern: /(\d{1,4})?(\d{1,6})?(\d{1,4})?/
 })
 
-exports.discover = new Type('Discover', {
+},{"../type":5}],9:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Discover',
   pattern: /^6(011(0[0-9]|[2-4]\d|74|7[7-9]|8[6-9]|9[0-9])|4[4-9]\d{3}|5\d{4})\d{10}$/,
   eagerPattern: /^6(011(0[0-9]|[2-4]|74|7[7-9]|8[6-9]|9[0-9])|4[4-9]|5)/
 })
 
-exports.jcb = new Type('JCB', {
+},{"../type":5}],10:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Elo',
+  pattern: /^(4[035]|5[0]|6[235])(6[7263]|9[90]|1[2416]|7[736]|8[9]|0[04579]|5[0])([0-9])([0-9])\d{10}$/,
+  eagerPattern: /^(4[035]|5[0]|6[235])(6[7263]|9[90]|1[2416]|7[736]|8[9]|0[04579]|5[0])([0-9])([0-9])/,
+  groupPattern: /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?(\d{1,3})?/
+})
+
+},{"../type":5}],11:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Forbrugsforeningen',
+  pattern: /^600722\d{10}$/,
+  eagerPattern: /^600/
+})
+
+},{"../type":5}],12:[function(_dereq_,module,exports){
+'use strict'
+
+module.exports = [
+  _dereq_('./visa'),
+  _dereq_('./maestro'),
+  _dereq_('./forbrugsforeningen'),
+  _dereq_('./dankort'),
+  _dereq_('./mastercard'),
+  _dereq_('./american-express'),
+  _dereq_('./diners-club'),
+  _dereq_('./discover'),
+  _dereq_('./jcb'),
+  _dereq_('./unionpay'),
+  _dereq_('./troy'),
+  _dereq_('./elo'),
+  _dereq_('./uatp')
+]
+
+},{"./american-express":6,"./dankort":7,"./diners-club":8,"./discover":9,"./elo":10,"./forbrugsforeningen":11,"./jcb":13,"./maestro":14,"./mastercard":15,"./troy":16,"./uatp":17,"./unionpay":18,"./visa":19}],13:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'JCB',
   pattern: /^35\d{14}$/,
   eagerPattern: /^35/
 })
 
-exports.unionPay = new Type('UnionPay', {
-  pattern: /^62[0-5]\d{13,16}$/,
-  eagerPattern: /^62/,
-  groupPattern: group19,
-  luhn: false
+},{"../type":5}],14:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Maestro',
+  digits: [12, 19],
+  pattern: /^(?:5[06789]\d\d|(?!6011[0234])(?!60117[4789])(?!60118[6789])(?!60119)(?!64[456789])(?!65)6\d{3})\d{8,15}$/,
+  eagerPattern: /^(5(018|0[23]|[68])|6[37]|60111|60115|60117([56]|7[56])|60118[0-5]|64[0-3]|66)/,
+  groupPattern: /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?(\d{1,3})?/
 })
 
-exports.troy = new Type('Troy', {
+},{"../type":5}],15:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Mastercard',
+  pattern: /^(5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)\d{12}$/,
+  eagerPattern: /^(2[3-7]|22[2-9]|5[1-5])/
+})
+
+},{"../type":5}],16:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Troy',
   pattern: /^9792\d{12}$/,
   eagerPattern: /^9792/
 })
 
-},{"./type":4}],6:[function(_dereq_,module,exports){
+},{"../type":5}],17:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'UATP',
+  digits: 15,
+  pattern: /^1\d{14}$/,
+  eagerPattern: /^1/,
+  groupPattern: /(\d{1,4})(\d{1,5})?(\d{1,6})?/
+})
+
+},{"../type":5}],18:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'UnionPay',
+  pattern: /^62[0-5]\d{13,16}$/,
+  eagerPattern: /^62/,
+  groupPattern: /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?(\d{1,3})?/,
+  luhn: false
+})
+
+},{"../type":5}],19:[function(_dereq_,module,exports){
+'use strict'
+
+var Type = _dereq_('../type')
+
+module.exports = Type({
+  name: 'Visa',
+  digits: [13, 19],
+  pattern: /^4\d{12}(\d{3}|\d{6})?$/,
+  eagerPattern: /^4/,
+  groupPattern: /(\d{1,4})(\d{1,4})?(\d{1,4})?(\d{1,4})?(\d{1,3})?/
+})
+
+},{"../type":5}],20:[function(_dereq_,module,exports){
 'use strict'
 
 var luhn = _dereq_('fast-luhn')
-var types = _dereq_('./types')
+var Types = _dereq_('./types')
 
-module.exports = {
-  types: types,
-  parse: parseCard,
-  format: formatCard,
-  type: cardType,
-  luhn: luhn,
-  isValid: isCardValid
-}
+module.exports = Card
 
-function parseCard (number) {
-  if (typeof number !== 'string') return ''
-  return number.replace(/[^\d]/g, '')
-}
+function Card (data) {
+  var types = Types(data)
 
-function formatCard (number, separator) {
-  var type = getType(number, true)
-  if (!type) return number
-  return type.group(number).join(separator || ' ')
-}
-
-function cardType (number, eager) {
-  var type = getType(number, eager)
-  return type ? type.name : undefined
-}
-
-function isCardValid (number, type) {
-  if (type) {
-    type = types.get(type)
-  } else {
-    type = getType(number)
+  return {
+    types: data,
+    parse: parseCard,
+    format: formatCard,
+    type: cardType,
+    luhn: luhn,
+    isValid: isCardValid
   }
-  if (!type) return false
-  return (!type.luhn || luhn(number)) && type.test(number)
+
+  function parseCard (number) {
+    if (typeof number !== 'string') return ''
+    return number.replace(/[^\d]/g, '')
+  }
+
+  function formatCard (number, separator) {
+    var type = getType(number, true)
+    if (!type) return number
+    return type.group(number).join(separator || ' ')
+  }
+
+  function cardType (number, eager) {
+    var type = getType(number, eager)
+    return type ? type.name : undefined
+  }
+
+  function isCardValid (number, type) {
+    if (type) {
+      type = types.get(type)
+    } else {
+      type = getType(number)
+    }
+    if (!type) return false
+    return (!type.luhn || luhn(number)) && type.test(number)
+  }
+
+  function getType (number, eager) {
+    return types.find(function (type) {
+      return type.test(number, eager)
+    })
+  }
 }
 
-function getType (number, eager) {
-  return types.find(function (type) {
-    return type.test(number, eager)
-  })
-}
-
-},{"./types":10,"fast-luhn":12}],7:[function(_dereq_,module,exports){
+},{"./types":24,"fast-luhn":26}],21:[function(_dereq_,module,exports){
 'use strict'
 
-var types = _dereq_('./types')
+var Types = _dereq_('./types')
 var cvcRegex = /^\d{3,4}$/
 
-module.exports = {
-  isValid: cvcIsValid
+module.exports = Cvc
+
+function Cvc (data) {
+  var types = Types(data)
+
+  return {
+    isValid: cvcIsValid
+  }
+
+  function cvcIsValid (cvc, type) {
+    if (typeof cvc !== 'string') return false
+    if (!cvcRegex.test(cvc)) return false
+
+    if (!type) {
+      return types.some(function (type) {
+        return type.cvcLength === cvc.length
+      })
+    }
+
+    return types.get(type).cvcLength === cvc.length
+  }
 }
 
-function cvcIsValid (cvc, type) {
-  if (typeof cvc !== 'string') return false
-  if (!cvcRegex.test(cvc)) return false
-  if (!type) return true
-  return types.get(type).cvcLength === cvc.length
-}
-
-},{"./types":10}],8:[function(_dereq_,module,exports){
+},{"./types":24}],22:[function(_dereq_,module,exports){
 'use strict'
 
 var isValidMonth = _dereq_('is-valid-month')
@@ -273,29 +416,58 @@ function isExpYearPast (year) {
   return new Date().getFullYear() > year
 }
 
-},{"is-valid-month":17,"parse-int":20,"parse-year":21}],9:[function(_dereq_,module,exports){
+},{"is-valid-month":31,"parse-int":34,"parse-year":35}],23:[function(_dereq_,module,exports){
 'use strict'
 
-module.exports = {
-  card: _dereq_('./card'),
-  cvc: _dereq_('./cvc'),
-  expiration: _dereq_('./expiration')
+var types = _dereq_('creditcards-types')
+var Card = _dereq_('./card')
+var Cvc = _dereq_('./cvc')
+var expiration = _dereq_('./expiration')
+
+module.exports = withTypes(types)
+module.exports.withTypes = withTypes
+
+function withTypes (types) {
+  return {
+    card: Card(types),
+    cvc: Cvc(types),
+    expiration: expiration
+  }
 }
 
-},{"./card":6,"./cvc":7,"./expiration":8}],10:[function(_dereq_,module,exports){
+},{"./card":20,"./cvc":21,"./expiration":22,"creditcards-types":4}],24:[function(_dereq_,module,exports){
 'use strict'
 
-var ccTypes = _dereq_('creditcards-types')
-var camel = _dereq_('to-camel-case')
-var extend = _dereq_('xtend')
+var find = _dereq_('array-find')
+var defaults = _dereq_('creditcards-types')
 
-module.exports = extend(ccTypes, {
-  get: function getTypeByName (name) {
-    return ccTypes.types[camel(name)]
+module.exports = CardTypes
+module.exports.defaults = defaults
+
+function CardTypes (types) {
+  var map = types.reduce(function (acc, type) {
+    acc[type.name] = type
+    return acc
+  }, {})
+
+  return {
+    find: find.bind(null, types),
+    some: types.some.bind(types),
+    get: get
   }
-})
 
-},{"creditcards-types":3,"to-camel-case":22,"xtend":25}],11:[function(_dereq_,module,exports){
+  function get (name) {
+    var type = map[name]
+
+    if (!type) {
+      throw new Error('No type found for name: ' + name)
+    }
+
+    return type
+  }
+}
+
+},{"array-find":2,"creditcards-types":4}],25:[function(_dereq_,module,exports){
 'use strict'
 
 var zeroFill = _dereq_('zero-fill')
@@ -310,7 +482,7 @@ module.exports = function expandYear (year, now) {
   return parseIntStrict(base + pad(year))
 }
 
-},{"parse-int":20,"zero-fill":27}],12:[function(_dereq_,module,exports){
+},{"parse-int":34,"zero-fill":37}],26:[function(_dereq_,module,exports){
 'use strict'
 
 module.exports = (function (array) {
@@ -324,14 +496,15 @@ module.exports = (function (array) {
 
     while (length) {
       value = parseInt(number.charAt(--length), 10)
-      sum += (bit ^= 1) ? array[value] : value
+      bit ^= 1
+      sum += bit ? array[value] : value
     }
 
-    return !!sum && sum % 10 === 0
+    return sum % 10 === 0
   }
 }([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]))
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -385,14 +558,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 'use strict';
 
 var implementation = _dereq_('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":13}],15:[function(_dereq_,module,exports){
+},{"./implementation":27}],29:[function(_dereq_,module,exports){
 'use strict';
 var numberIsNan = _dereq_('number-is-nan');
 
@@ -400,7 +573,7 @@ module.exports = Number.isFinite || function (val) {
 	return !(typeof val !== 'number' || numberIsNan(val) || val === Infinity || val === -Infinity);
 };
 
-},{"number-is-nan":19}],16:[function(_dereq_,module,exports){
+},{"number-is-nan":33}],30:[function(_dereq_,module,exports){
 // https://github.com/paulmillr/es6-shim
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.isinteger
 var isFinite = _dereq_("is-finite");
@@ -410,7 +583,7 @@ module.exports = Number.isInteger || function(val) {
     Math.floor(val) === val;
 };
 
-},{"is-finite":15}],17:[function(_dereq_,module,exports){
+},{"is-finite":29}],31:[function(_dereq_,module,exports){
 'use strict'
 
 var isInteger = _dereq_('is-integer')
@@ -420,32 +593,33 @@ module.exports = function isValidMonth (month) {
   return month >= 1 && month <= 12
 }
 
-},{"is-integer":16}],18:[function(_dereq_,module,exports){
+},{"is-integer":30}],32:[function(_dereq_,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],19:[function(_dereq_,module,exports){
+},{}],33:[function(_dereq_,module,exports){
 'use strict';
 module.exports = Number.isNaN || function (x) {
 	return x !== x;
 };
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 'use strict'
 
 var isInteger = _dereq_('is-integer')
+var isIntegerRegex = /^-?\d+$/
 
 module.exports = function parseIntStrict (integer) {
   if (typeof integer === 'number') {
     return isInteger(integer) ? integer : undefined
   }
   if (typeof integer === 'string') {
-    return /^-?\d+$/.test(integer) ? parseInt(integer, 10) : undefined
+    return isIntegerRegex.test(integer) ? parseInt(integer, 10) : undefined
   }
 }
 
-},{"is-integer":16}],21:[function(_dereq_,module,exports){
+},{"is-integer":30}],35:[function(_dereq_,module,exports){
 'use strict'
 
 var parseIntStrict = _dereq_('parse-int')
@@ -458,143 +632,7 @@ module.exports = function parseYear (year, expand, now) {
   return expandYear(year, now)
 }
 
-},{"expand-year":11,"parse-int":20}],22:[function(_dereq_,module,exports){
-
-var space = _dereq_('to-space-case')
-
-/**
- * Export.
- */
-
-module.exports = toCamelCase
-
-/**
- * Convert a `string` to camel case.
- *
- * @param {String} string
- * @return {String}
- */
-
-function toCamelCase(string) {
-  return space(string).replace(/\s(\w)/g, function (matches, letter) {
-    return letter.toUpperCase()
-  })
-}
-
-},{"to-space-case":24}],23:[function(_dereq_,module,exports){
-
-/**
- * Export.
- */
-
-module.exports = toNoCase
-
-/**
- * Test whether a string is camel-case.
- */
-
-var hasSpace = /\s/
-var hasSeparator = /(_|-|\.|:)/
-var hasCamel = /([a-z][A-Z]|[A-Z][a-z])/
-
-/**
- * Remove any starting case from a `string`, like camel or snake, but keep
- * spaces and punctuation that may be important otherwise.
- *
- * @param {String} string
- * @return {String}
- */
-
-function toNoCase(string) {
-  if (hasSpace.test(string)) return string.toLowerCase()
-  if (hasSeparator.test(string)) return (unseparate(string) || string).toLowerCase()
-  if (hasCamel.test(string)) return uncamelize(string).toLowerCase()
-  return string.toLowerCase()
-}
-
-/**
- * Separator splitter.
- */
-
-var separatorSplitter = /[\W_]+(.|$)/g
-
-/**
- * Un-separate a `string`.
- *
- * @param {String} string
- * @return {String}
- */
-
-function unseparate(string) {
-  return string.replace(separatorSplitter, function (m, next) {
-    return next ? ' ' + next : ''
-  })
-}
-
-/**
- * Camelcase splitter.
- */
-
-var camelSplitter = /(.)([A-Z]+)/g
-
-/**
- * Un-camelcase a `string`.
- *
- * @param {String} string
- * @return {String}
- */
-
-function uncamelize(string) {
-  return string.replace(camelSplitter, function (m, previous, uppers) {
-    return previous + ' ' + uppers.toLowerCase().split('').join(' ')
-  })
-}
-
-},{}],24:[function(_dereq_,module,exports){
-
-var clean = _dereq_('to-no-case')
-
-/**
- * Export.
- */
-
-module.exports = toSpaceCase
-
-/**
- * Convert a `string` to space case.
- *
- * @param {String} string
- * @return {String}
- */
-
-function toSpaceCase(string) {
-  return clean(string).replace(/[\W_]+(.|$)/g, function (matches, match) {
-    return match ? ' ' + match : ''
-  }).trim()
-}
-
-},{"to-no-case":23}],25:[function(_dereq_,module,exports){
-module.exports = extend
-
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-
-function extend() {
-    var target = {}
-
-    for (var i = 0; i < arguments.length; i++) {
-        var source = arguments[i]
-
-        for (var key in source) {
-            if (hasOwnProperty.call(source, key)) {
-                target[key] = source[key]
-            }
-        }
-    }
-
-    return target
-}
-
-},{}],26:[function(_dereq_,module,exports){
+},{"expand-year":25,"parse-int":34}],36:[function(_dereq_,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -613,7 +651,7 @@ function extend(target) {
     return target
 }
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],37:[function(_dereq_,module,exports){
 /**
  * Given a number, return a zero-filled string.
  * From http://stackoverflow.com/questions/1267283/
@@ -633,7 +671,7 @@ module.exports = function zeroFill (width, number, pad) {
   return number + ''
 }
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],38:[function(_dereq_,module,exports){
 'use strict'
 
 var cvc = _dereq_('creditcards').cvc
@@ -668,7 +706,7 @@ function factory () {
   }
 }
 
-},{"creditcards":9,"function-bind":14}],29:[function(_dereq_,module,exports){
+},{"creditcards":23,"function-bind":28}],39:[function(_dereq_,module,exports){
 'use strict'
 
 var expiration = _dereq_('creditcards').expiration
@@ -708,7 +746,7 @@ function CcExpController ($scope, $element) {
   function setValidity (exp) {
     var expMonth = exp.month
     var expYear = exp.year
-    var valid = (expMonth == null && expYear == null) || !!expMonth && !!expYear && !expiration.isPast(expMonth, expYear)
+    var valid = ((expMonth == null && expYear == null) || !!expMonth) && !!expYear && !expiration.isPast(expMonth, expYear)
     parentForm.$setValidity('ccExp', valid, $element)
   }
 
@@ -783,7 +821,7 @@ exports.year = function ccExpYear () {
 
 function noop () {}
 
-},{"ap":1,"creditcards":9}],30:[function(_dereq_,module,exports){
+},{"ap":1,"creditcards":23}],40:[function(_dereq_,module,exports){
 'use strict'
 
 var card = _dereq_('creditcards').card
@@ -878,7 +916,7 @@ function factory ($parse, $timeout) {
   }
 }
 
-},{"ap":1,"cast-array":2,"creditcards":9}],31:[function(_dereq_,module,exports){
+},{"ap":1,"cast-array":3,"creditcards":23}],41:[function(_dereq_,module,exports){
 (function (global){
 'use strict'
 
@@ -899,5 +937,5 @@ module.exports = angular
   .name
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./cvc":28,"./expiration":29,"./number":30,"creditcards":9}]},{},[31])(31)
+},{"./cvc":38,"./expiration":39,"./number":40,"creditcards":23}]},{},[41])(41)
 });

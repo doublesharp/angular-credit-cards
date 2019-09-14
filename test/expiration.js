@@ -40,14 +40,14 @@ describe('Expiration', function () {
       expiration.month = 1
       expiration.year = 2015
       $scope.$digest()
-      expect(formController.$error.ccExp).to.not.be.ok
+      expect(formController.$error.ccExp).to.not.be.ok()
     })
 
     it('is valid for the current month', function () {
       expiration.month = 12
       expiration.year = 2014
       $scope.$digest()
-      expect(formController.$error.ccExp).to.not.be.ok
+      expect(formController.$error.ccExp).to.not.be.ok()
     })
 
     it('is invalid when month exists but not year', function () {
@@ -71,9 +71,9 @@ describe('Expiration', function () {
 
     it('is valid with an empty expiration', function () {
       $scope.$digest()
-      expect(formController.$error.ccExp).to.not.be.ok
-      expect(formController.$error.ccExpMonth).to.not.be.ok
-      expect(formController.$error.ccExpYear).to.not.be.ok
+      expect(formController.$error.ccExp).to.not.be.ok()
+      expect(formController.$error.ccExpMonth).to.not.be.ok()
+      expect(formController.$error.ccExpYear).to.not.be.ok()
     })
 
     it('is a noop with no form', function () {
@@ -85,7 +85,7 @@ describe('Expiration', function () {
       expiration.month = 1
       expiration.year = 2015
       formController = $compile(element)($scope).controller('form')
-      expect(formController.$error.ccExp).to.not.be.ok
+      expect(formController.$error.ccExp).to.not.be.ok()
       expect(formController.$valid).equal(true)
     })
   })
@@ -110,8 +110,8 @@ describe('Expiration', function () {
       controller = $compile(element)($scope).controller('ngModel')
       controller.$setViewValue('100')
       $scope.$digest()
-      expect(controller.$valid).to.be.false
-      expect(controller.$error.maxlength).to.be.true
+      expect(controller.$valid).to.be.false()
+      expect(controller.$error.maxlength).to.be.true()
     })
 
     it('adds a numeric pattern', function () {
@@ -121,21 +121,21 @@ describe('Expiration', function () {
     it('is accepts a valid month string', function () {
       controller.$setViewValue('05')
       $scope.$digest()
-      expect(controller.$valid).to.be.true
+      expect(controller.$valid).to.be.true()
       expect(expiration.month).to.equal(5)
     })
 
     it('is accepts a valid month number', function () {
       controller.$setViewValue(5)
       $scope.$digest()
-      expect(controller.$valid).to.be.true
+      expect(controller.$valid).to.be.true()
       expect(expiration.month).to.equal(5)
     })
 
     it('is invalid when falsy', function () {
       controller.$setViewValue('')
       $scope.$digest()
-      expect(controller.$valid).to.be.false
+      expect(controller.$valid).to.be.false()
     })
   })
 
@@ -161,26 +161,26 @@ describe('Expiration', function () {
     it('is invalid when in the past', function () {
       controller.$setViewValue(13)
       $scope.$digest()
-      expect(controller.$error.ccExpYear).to.be.true
+      expect(controller.$error.ccExpYear).to.be.true()
     })
 
     it('is valid for this year', function () {
       controller.$setViewValue('14')
       $scope.$digest()
-      expect(controller.$valid).to.be.true
+      expect(controller.$valid).to.be.true()
       expect(expiration.year).to.equal(2014)
     })
 
     it('is valid for a far-future year', function () {
       controller.$setViewValue('99')
       $scope.$digest()
-      expect(controller.$valid).to.be.true
+      expect(controller.$valid).to.be.true()
     })
 
     it('is not valid for a past year', function () {
       controller.$setViewValue('13')
       $scope.$digest()
-      expect(controller.$valid).to.be.false
+      expect(controller.$valid).to.be.false()
     })
 
     it('formats the year from the model value', function () {
@@ -202,7 +202,7 @@ describe('Expiration', function () {
       it('does not pad the date when parsing', function () {
         controller.$setViewValue('2014')
         $scope.$digest()
-        expect(controller.$valid).to.be.true
+        expect(controller.$valid).to.be.true()
         expect(expiration.year).to.equal(2014)
       })
 

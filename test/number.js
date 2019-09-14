@@ -33,15 +33,15 @@ describe('cc-number', function () {
 
   it('accepts a valid card', function () {
     controller.$setViewValue('4242 4242 4242 4242')
-    expect(controller.$valid).to.be.true
+    expect(controller.$valid).to.be.true()
     expect(scope.card.number).to.equal('4242424242424242')
   })
 
   it('accepts an empty card', function () {
     controller.$setViewValue('')
     scope.$digest()
-    expect(controller.$error.ccNumber).to.not.be.ok
-    expect(controller.$error.ccNumberType).to.not.be.ok
+    expect(controller.$error.ccNumber).to.not.be.ok()
+    expect(controller.$error.ccNumberType).to.not.be.ok()
     expect(scope.card.number).to.equal('')
   })
 
@@ -49,29 +49,29 @@ describe('cc-number', function () {
     scope.cardType = 'Visa'
     controller.$setViewValue('4242 4242 4242 4242')
     scope.$digest()
-    expect(controller.$error.ccNumberType).to.not.be.ok
+    expect(controller.$error.ccNumberType).to.not.be.ok()
   })
 
   it('accepts a valid card with multiple types', function () {
     scope.cardType = ['Visa', 'American Express']
     controller.$setViewValue('4242 4242 4242 4242')
     scope.$digest()
-    expect(controller.$error.ccNumberType).to.not.be.ok
+    expect(controller.$error.ccNumberType).to.not.be.ok()
     controller.$setViewValue('378282246310005')
     scope.$digest()
-    expect(controller.$error.ccNumberType).to.not.be.ok
+    expect(controller.$error.ccNumberType).to.not.be.ok()
   })
 
   it('rejects a luhn-invalid card', function () {
     controller.$setViewValue('4242424242424241')
-    expect(controller.$error.ccNumber).to.be.true
-    expect(scope.card.number).to.be.undefined
+    expect(controller.$error.ccNumber).to.be.true()
+    expect(scope.card.number).to.be.undefined()
   })
 
   it('rejects a luhn-valid card with no matching type', function () {
     controller.$setViewValue('42')
-    expect(controller.$error.ccNumber).to.be.true
-    expect(scope.card.number).to.be.undefined
+    expect(controller.$error.ccNumber).to.be.true()
+    expect(scope.card.number).to.be.undefined()
   })
 
   describe('ccFormat (card formatting)', function () {
@@ -128,14 +128,14 @@ describe('cc-number', function () {
       scope.cardType = 'Visa'
       controller.$setViewValue('4242 4242 4242 4242')
       scope.$digest()
-      expect(controller.$error.ccNumberType).to.not.be.ok
+      expect(controller.$error.ccNumberType).to.not.be.ok()
     })
 
     it('rejects a valid card when the type is a mismatch', function () {
       scope.cardType = 'American Express'
       controller.$setViewValue('4242 4242 4242 4242')
       scope.$digest()
-      expect(controller.$error.ccNumber).to.not.be.ok
+      expect(controller.$error.ccNumber).to.not.be.ok()
       expect(controller.$error.ccNumberType).to.equal(true)
     })
   })
