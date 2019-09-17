@@ -746,7 +746,7 @@ function CcExpController ($scope, $element) {
   function setValidity (exp) {
     var expMonth = exp.month
     var expYear = exp.year
-    var valid = ((expMonth == null && expYear == null) || !!expMonth) && !!expYear && !expiration.isPast(expMonth, expYear)
+    var valid = (expMonth == null && expYear == null) || (!!expMonth && !!expYear && !expiration.isPast(expMonth, expYear))
     parentForm.$setValidity('ccExp', valid, $element)
   }
 
